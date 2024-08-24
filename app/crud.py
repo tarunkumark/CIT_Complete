@@ -40,3 +40,23 @@ def get_items_by_title(db: Session, title: str):
 
 def get_items_by_owner(db: Session, owner_id: int):
     return db.query(models.Item).filter(models.Item.owner_id == owner_id).all()
+
+def update_item(db:Session, item_id:int, item_data: schemas.ItemCreate):
+    db_item = db.query(models.Item).filter(models.Item.id == item_id).one()
+    if not db_item:
+        return False
+    db_item.title = item_data.title
+    db_item.description = item_data.description
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+def delete_item(db:Session, item_id:int):
+    db_item = db.query(models.Item).filter(models.Item.id == item_id).one()
+    if not db_item:
+        return False
+    db.delete(db_item)
+    db.commit()
+    return {"msg":"deleted successfully"}
+    

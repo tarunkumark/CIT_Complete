@@ -1,5 +1,6 @@
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
+from fastapi.middleware.cors import CORSMiddleware
 
 from . import crud, models, schemas
 from .database import SessionLocal, engine
@@ -8,7 +9,13 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # Dependency
 def get_db():
     db = SessionLocal()
@@ -79,8 +86,24 @@ def read_items_by_title(title: str, db: Session = Depends(get_db)):
 def read_items_by_owner(owner_id: int, db: Session = Depends(get_db)):
     items = crud.get_items_by_owner(db, owner_id)
     return items
-        
 
+
+#Create an endpoint which updates an existing item
+@app.put("/items/{item_id}")
+def update_item(item_id:int, item_data:schemas.ItemCreate,db:Session=Depends(get_db)):
+    if not crud.update_item(item_id=item_id, db=db, item_data=item_data):
+        raise HTTPException(status_code=404, detail="Item not found")
+    return {"message":"Item updated successfully"}
+
+
+
+#Create an endpoint which deletes an existing item
+        
+@app.delete("/items/{item_id}")
+def delete_item(item_id:int, db:Session=Depends(get_db)):
+    if not crud.delete_item(item_id=item_id, db=db):
+        raise HTTPException(status_code=404, detail="Item not found")
+    return {"message":"Item deleted successfully"}
 
 
     
