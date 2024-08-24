@@ -6,7 +6,9 @@ SQLALCHEMY_DATABASE_URL = "postgresql://CIT_owner:ESXc9eidA2xy@ep-odd-shape-a5dd
 # SQLALCHEMY_DATABASE_URL = "postgresql://user:password@postgresserver/db"
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL
+    SQLALCHEMY_DATABASE_URL,
+    pool_recycle=3600,
+    pool_pre_ping=True
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
